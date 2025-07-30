@@ -1,0 +1,63 @@
+
+
+html, body {
+  background-color: #fff !important;
+  color: #000 !important;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.dark html, .dark body {
+  background-color: #000 !important;
+  color: #fff !important;
+}
+
+/* Utility classes for strict black/white UI */
+.bg-white { background-color: #fff !important; }
+.bg-black { background-color: #000 !important; }
+.text-white { color: #fff !important; }
+.text-black { color: #000 !important; }
+.border-black { border-color: #000 !important; }
+.border-white { border-color: #fff !important; }
+.border { border-width: 1px; border-style: solid; }
+.transition-colors { transition-property: background-color, color, border-color; transition-duration: 0.3s; }
+.duration-300 { transition-duration: 0.3s; }
+
+/* Scrollbar styles: strict black/white */
+::-webkit-scrollbar-thumb {
+  background: #000;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #222;
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: #fff;
+}
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #ccc;
+}
+
+/* Focus states: strict white/black ring */
+input:focus,
+textarea:focus,
+button:focus {
+  outline: 2px solid #000;
+}
+.dark input:focus,
+.dark textarea:focus,
+.dark button:focus {
+  outline: 2px solid #fff;
+}
+
+/* Placeholder text: strict gray for contrast */
+input::placeholder,
+textarea::placeholder {
+  color: #888;
+}
+.dark input::placeholder,
+.dark textarea::placeholder {
+  color: #bbb;
+}
