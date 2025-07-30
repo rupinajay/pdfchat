@@ -77,11 +77,15 @@ export async function POST(request: NextRequest) {
       )
     }
 
+
     // Process the document
     console.log("Starting document processing...")
     let processResult
     try {
-      const processResponse = await fetch(`${request.nextUrl.origin}/api/process-document`, {
+      // Use internal base URL for server-side fetches to avoid SSL errors on Render
+      const baseUrl = process.env.INTERNAL_BASE_URL || "http://localhost:10000"
+      console.log("[DEBUG] Using baseUrl for internal fetch:", baseUrl)
+      const processResponse = await fetch(`${baseUrl}/api/process-document`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
