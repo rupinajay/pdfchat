@@ -118,6 +118,15 @@ async function generateEmbeddings(texts: string[]): Promise<number[][]> {
 
       for (const text of batch) {
         try {
+          console.log("[DEBUG] Fetching Gravixlayer embeddings API", {
+            url: "https://api.gravixlayer.com/v1/inference/embeddings",
+            apiKeyPresent: !!process.env.GRAVIXLAYER_API_KEY,
+            inputLength: batch.length,
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${process.env.GRAVIXLAYER_API_KEY}`,
+            },
+          });
           const response = await fetch("https://api.gravixlayer.com/v1/inference/embeddings", {
             method: "POST",
             headers: {

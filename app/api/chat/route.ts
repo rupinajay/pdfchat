@@ -62,6 +62,15 @@ async function generateQueryEmbedding(query: string): Promise<number[]> {
     try {
       console.log("Generating query embedding with model: llama3.1:8b using raw fetch")
 
+      console.log("[DEBUG] Fetching Gravixlayer embeddings API", {
+        url: "https://api.gravixlayer.com/v1/inference/embeddings",
+        apiKeyPresent: !!process.env.GRAVIXLAYER_API_KEY,
+        input: query,
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${process.env.GRAVIXLAYER_API_KEY}`,
+        },
+      });
       const response = await fetch("https://api.gravixlayer.com/v1/inference/embeddings", {
         method: "POST",
         headers: {
@@ -265,6 +274,18 @@ ${relevantChunks.join("\n\n---\n\n")}`,
     })
 
     // Make request to Gravixlayer API
+    console.log("[DEBUG] Fetching Gravixlayer chat completions API", {
+      url: "https://api.gravixlayer.com/v1/inference/chat/completions",
+      apiKeyPresent: !!process.env.GRAVIXLAYER_API_KEY,
+      model,
+      temperature,
+      maxTokens,
+      messageCount: processedMessages.length,
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${process.env.GRAVIXLAYER_API_KEY}`,
+      },
+    });
     const response = await fetch("https://api.gravixlayer.com/v1/inference/chat/completions", {
       method: "POST",
       headers: {
