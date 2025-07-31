@@ -1,4 +1,5 @@
 import type { NextRequest } from "next/server"
+import { cookies } from "next/headers"
 
 // Ensure this runs in Node.js runtime, not Edge
 export const runtime = "nodejs"
@@ -214,6 +215,10 @@ export async function POST(req: NextRequest) {
       })
     }
 
+    // Get sessionId from cookie
+    const sessionId = cookies().get("sessionId")?.value
+    console.log("[DEBUG] Chat API sessionId:", sessionId)
+
     let processedMessages = messages
 
     // If RAG is enabled and we have documents, retrieve relevant context
@@ -222,8 +227,18 @@ export async function POST(req: NextRequest) {
 
       try {
         const documentStore = getDocumentStore()
+        let sessionDocs: Map<string, any> | undefined = undefined
+        if (sessionId && documentStore.has(sessionId)) {
+          const possibleMap = documentStore.get(sessionId)
+          if (possibleMap && typeof possibleMap === "object" && typeof (possibleMap as unknown as Map<string, any>).keys === "function") {
+            sessionDocs = possibleMap as unknown as Map<string, any>
+          } else {
+            console.warn("[DEBUG] sessionDocs is not a Map, skipping RAG for this session.")
+          }
+        }
+        console.log("[DEBUG] Document store for session:", sessionDocs ? Array.from(sessionDocs.keys()) : null)
 
-        if (documentStore && documentStore.size > 0) {
+        if (sessionDocs && sessionDocs.size > 0) {
           const lastUserMessage = messages.filter((m) => m.role === "user").pop()
           if (lastUserMessage && lastUserMessage.content) {
             console.log("Performing RAG retrieval for:", lastUserMessage.content.substring(0, 100) + "...")
@@ -233,7 +248,7 @@ export async function POST(req: NextRequest) {
               const queryEmbedding = await generateQueryEmbedding(lastUserMessage.content)
 
               // Retrieve relevant chunks
-              const relevantChunks = retrieveRelevantChunks(queryEmbedding, documentStore)
+              const relevantChunks = retrieveRelevantChunks(queryEmbedding, sessionDocs)
 
               if (relevantChunks.length > 0) {
                 console.log(`Found ${relevantChunks.length} relevant chunks`)
@@ -257,7 +272,7 @@ ${relevantChunks.join("\n\n---\n\n")}`,
             }
           }
         } else {
-          console.log("No documents available for RAG")
+          console.log("No documents available for RAG for session:", sessionId)
         }
       } catch (storeError) {
         console.error("Error accessing document store:", storeError)
